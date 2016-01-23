@@ -4,12 +4,15 @@
 			<div class="col  offset-s4 s8 "><h4 class="header">死信队列列表</h4></div>
 		</div>
 		<div class="row">
-		    <div class="col s12 m12 l12">
+		    <div class="col s12 m4">
 		         <input v-model="searchText" type="text" placeholder="查找"/>
 		    </div>
 		    <div class="input-field col s3">
 				    <button class="btn" @click="search">检索</button>
 				</div>
+				<div class="input-field col s3">
+				    <button class="btn" @click="reset">重置</button>
+		    </div>
 		</div>
 	    <table class="table bordered striped responsive-table centered">
 	        <thead>
@@ -33,9 +36,7 @@
 						{{item.msgType}}
 					</td>
 					<td style="width:30%">
-					<p style=" max-width:500px;white-space:nowrap;word-break:keep-all;overflow:hidden;text-overflow:ellipsis;">
-						<a href="#/mq/deadMq/{{item.id}}" title="{{item.msgText}}">{{item.msgText}}</a>
-						</p>
+					 <modal :item="item"></modal>
 					</td>
 					<td style="width:5%">
 						{{item.priority}}
@@ -55,12 +56,13 @@
             	     
 	    </table>
 	     
-	    <pagination :page-per-rows="10" :page="page" :cur-page.sync="curPage"></pagination>
+	    <pagination :page-per-rows="rows" :total-page="totalPage" :cur-page.sync="curPage"></pagination>
     </div>
 </template>
 <script>
-import {getDeadMsg} from '../services/DeadMsgService.js'
+import * as deadMsgService from '../services/DeadMsgService.js'
 import pagination from './Pagination.vue'
+import modal from './TableModel.vue'
 export default {
   data () {
     return {
@@ -68,12 +70,29 @@ export default {
       checked:false,
       checkedNames:[],
       curPage:1,
-      page:{page:1,rows:10},
+      rows:10,
+      totalPage:10,
       searchText:null
     }
   },
+  
+  route: {
+    data ({to,next}) {
+      this.searchText = to.query.searchText;
+      if(to.query.page !=null){
+        this.curPage = to.query.page;
+      }else{
+       this.curPage = 1
+      }
+      if(to.query.rows != null){
+        this.rows = to.query.rows;
+      }
+      this.updateData();   
+    }
+  },
   components: {
-    pagination
+    pagination,
+    modal
   },
   ready () {
     this.updateData();
@@ -95,25 +114,39 @@ export default {
     },
     updateData () {
       let params = {};
-      params.page = this.page.page;
-      params.rows = this.page.rows;
+      params.page = this.curPage;
+      params.rows = this.rows;
       params.searchText = this.searchText;
-      getDeadMsg(params).then((xhr,response) =>{
+      deadMsgService.getDeadMsg(params).then((xhr,response) =>{
       if(response.code == 200){
-	           this.page = response.page;
-	           this.items = response.items;
+	        var page = response.page;
+            this.totalPage = (page.totalRows / this.rows).toFixed(0);
+	        this.items = response.items;
 	          
            }
       });
     },
     search () {
-      this.updateData();
+     this.$router.go({name:'deadmsg',query:{searchText:this.searchText}})
+    },
+    reset () {
+        let params = {};
+        let ids ="";
+        this.checkedNames.forEach(key =>{
+            ids += key +","
+        })
+        params.ids = ids;
+        deadMsgService.resetDeadMsg(params).then((xhr,response) => {
+           if(response.code == 200){
+              this.checkedNames=[]
+              this.updateData()
+	     }
+      });
     }
   },
   watch:{
     curPage () {
-	    this.page.page = this.curPage;
-	    this.updateData()
+	   this.$router.go({name:'deadmsg',query:{page:this.curPage,searchText:this.searchText,rows:this.rows}})
     }
   }
 }

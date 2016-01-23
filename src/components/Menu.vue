@@ -13,8 +13,8 @@
               </a>
                <div class="collapsible-body" :style="{display:display}">
                  <ul>
-                    <li v-for="item in function.functions" :class="{active:itemindex == item.id}" >
-                        <a v-link="{ path: item.path }" @click="toggleItem(item.id,function.id)">
+                    <li v-for="item in function.functions" :class="{active:itemindex == item.id,cyan:itemindex == item.id}" >
+                        <a v-link="{ path: item.path ,query:{page:1}}" @click="toggleItem(item.id,function.id)">
                             {{item.label}}
                         </a>
                     </li> 

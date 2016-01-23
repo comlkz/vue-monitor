@@ -1,10 +1,10 @@
 <template>
 			  <ul class="pagination">
-			     <li class="waves-effec"><a @click="changePage(1)">首页</a></li>
+			     <li :class="{'disabled': curPage == 1,'waves-effect':curPage != 1}"><a @click="changePage(1)">首页</a></li>
 			    <li :class="{'disabled': curPage == 1,'waves-effect':curPage != 1}"><a @click="prePage(curPage)">上一页</a></li>
-			    <li v-for="item in items"  :class="{'active':item == curPage,'waves-effect':item != curPage}"><a @click="changePage(item)">{{item}}</a></li>
-			   <li :class="{'disabled':curPage == totalPage,'waves-effect':curPage != 1}"><a @click="nextPage(curPage)">下一页</a></li>
-			    <li class="waves-effec"><a @click="changePage(totalPage)">尾页</a></li>
+			    <li v-for="item in items"  :class="{'active':item == curPage,cyan:item == curPage,'waves-effect':item != curPage}"><a @click="changePage(item)">{{item}}</a></li>
+			   <li :class="{'disabled':curPage == totalPage,'waves-effect':curPage != totalPage}"><a @click="nextPage(curPage)">下一页</a></li>
+			    <li :class="{'disabled':curPage == totalPage,'waves-effect':curPage != totalPage}"><a @click="changePage(totalPage)">尾页</a></li>
 			  </ul>
 	
 </template>
@@ -12,10 +12,9 @@
 export default{
     data () {
       return {
-	    totalPage:1
       }
     },
-    props: ['page','curPage'],
+    props: ['totalPage','curPage'],
     ready () {
        
     },
@@ -42,18 +41,18 @@ export default{
     },
      computed: {
       items: function(){
+        var curPage = parseInt(this.curPage);
         var left = 1;
-        var floatPage = this.page.totalRows / this.page.rows;
-        var totalPage = floatPage.toFixed(0);
-        this.totalPage = totalPage;
+        var totalPage = this.totalPage;
+        console.log('totalPage:'+totalPage)
         var right = totalPage;
         var ar = [];
         if(totalPage>= 7){
-          if(this.curPage > 5 && this.curPage <totalPage-4){
-            left = this.curPage - 3;
-            right = this.curPage + 3;
+          if(curPage > 5 && curPage <totalPage-4){
+            left = curPage - 3;
+            right = curPage + 3;
           }else{
-            if(this.curPage<=5){
+            if(curPage<=5){
               left = 1;
               right = 7;
             }else{
@@ -62,6 +61,7 @@ export default{
             }
           }
         }
+        console.log('left:'+left+"right:"+right)
         while (left <= right){
           ar.push(left);
           left ++;

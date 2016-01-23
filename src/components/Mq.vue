@@ -4,12 +4,15 @@
 			<div class="col  offset-s4 s8 "><h4 class="header">错误队列列表</h4></div>
 		</div>
 		<div class="row">
-		    <div class="col s12 m12 l12">
-		         <input v-model="searchText" type="text" placeholder="查找"/>
+		    <div class="col s12 m4 ">
+		         <input v-model="searchText" type="text" placeholder="查找"/> 
 		    </div>
 		    <div class="input-field col s3">
 				    <button class="btn" @click="search">检索</button>
-				</div>
+		    </div>
+		    <div class="input-field col s3">
+				    <button class="btn" @click="reset">重置</button>
+		    </div>
 		</div>
 	    <table class="table bordered striped responsive-table centered">
 	        <thead>
@@ -27,15 +30,13 @@
 				<tr v-for="item in items">
 					<td style="width: 5%">
 					    <input type="checkbox" id="{{item.id}}" value={{item.id}}  v-model="checkedNames"/>
-					    <label for="{{item.id}}"></label>
+					    <label for="{{item.id}}"> </label>
 					</td>
 					<td style="width: 10%">
 						{{item.msgType}}
 					</td>
 					<td style="width:30%">
-					<p style=" max-width:500px;white-space:nowrap;word-break:keep-all;overflow:hidden;text-overflow:ellipsis;">
-						<a href="#/mq/deadMq/{{item.id}}" title="{{item.msgText}}">{{item.msgText}}</a>
-						</p>
+					  <modal :item="item"></modal>
 					</td>
 					<td style="width:5%">
 						{{item.priority}}
@@ -44,10 +45,10 @@
 					  {{item.rewriteCount}}				
                    </td>
 					<td style="width:17%">
-						 {{item.createdDate | date  YYYY-MM-DD HH:mm:ss}}			
+						 {{item.createdDate | date  'YYYY-MM-DD HH:mm:ss'}}			
 					</td>
 					<td style="width:17%"> 
-					     {{item.lastRewriteDate | date YYYY-MM-DD HH:mm:ss}}
+					     {{item.lastRewriteDate | date 'YYYY-MM-DD HH:mm:ss'}}
 					</td>
 				</tr>
 	
@@ -55,12 +56,13 @@
             	     
 	    </table>
 	     
-	    <pagination :page-per-rows="10" :page="page" :cur-page.sync="curPage"></pagination>
+	    <pagination :page-per-rows="rows" :total-page="totalPage" :cur-page.sync="curPage"></pagination>
     </div>
 </template>
 <script>
-import {getErrorMsg} from '../services/ErrorMsgService.js'
+import * as errorMsgService from '../services/ErrorMsgService.js'
 import pagination from './Pagination.vue'
+import modal from './TableModel.vue'
 export default {
   data () {
     return {
@@ -68,16 +70,32 @@ export default {
       checked:false,
       checkedNames:[],
       curPage:1,
-      page:{page:1,rows:10},
+      rows:10,
+      totalPage:10,
       searchText:null,
-
     }
   },
   components: {
-    pagination
+    pagination,
+    modal
+  },
+  
+  route: {
+    data ({to,next}) {
+      this.searchText = to.query.searchText;
+      if(to.query.page !=null){
+        this.curPage = to.query.page;
+      }else{
+       this.curPage = 1
+      }
+      if(to.query.rows != null){
+        this.rows = to.query.rows;
+      }
+      this.updateData();   
+    }
   },
   ready () {
-    this.updateData();
+    
   },
   methods: {
     selectAll (checked) {
@@ -96,26 +114,43 @@ export default {
     },
     updateData () {
       let params = {};
-      params.page = this.page.page;
-      params.rows = this.page.rows;
+      params.page = this.curPage;
+      params.rows = this.rows;
       params.searchText = this.searchText;
-      getErrorMsg(params).then((xhr,response) => {
+      errorMsgService.getErrorMsg(params).then((xhr,response) => {
        if(response.code == 200){
-            console.log(response.items)
-           this.page = response.page;
-           this.items = response.items;  
+
+           var page = response.page;
+           this.totalPage = (page.totalRows / this.rows).toFixed(0);
+            
+           this.items = response.items;
+           
 	     }
       });
     },
     search () {
-      this.updateData();
+      this.$router.go({name:'mq',query:{searchText:this.searchText}})
+    },
+    reset () {
+        let params = {};
+        let ids ="";
+        this.checkedNames.forEach(key =>{
+            ids += key +","
+        })
+        params.ids = ids;
+        errorMsgService.resetErrorMsg(params).then((xhr,response) => {
+           if(response.code == 200){
+              this.checkedNames=[]
+              this.updateData()
+	     }
+      });
     }
   },
   watch:{
     curPage () {
-	    this.page.page = this.curPage;
-	    this.updateData()
+	   this.$router.go({name:'mq',query:{page:this.curPage,searchText:this.searchText,rows:this.rows}})
     }
+   
   }
   
   

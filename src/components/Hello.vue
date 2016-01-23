@@ -2,7 +2,7 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
   </div>
-  <input type="text" v-date-picker>
+
   </input>
 </template>
 

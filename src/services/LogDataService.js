@@ -5,5 +5,10 @@ export function getLogData(params){
 	
 }
 export function getSysProject(params){
-	     return qwest.get(Url.SYS_DATA,params,{ cache: true });
+	return qwest.get(Url.SYS_DATA,params,{ cache: true });
+}
+
+export function getLogDetail(id,params){
+	console.log(params)
+	return qwest.get(Url.LOG_DETAIL+id,params,{cache:true})
 }

@@ -13,19 +13,21 @@ Vue.filter('date', function (value,format) {
 })
 
 Vue.directive('date-picker', {
-  twoWay: true,
-  priority: 1000,
-
+ 
   params: ['options'],
     
   bind: function () {
-    var self = this;
-    console.log(this.el)
-     $(this.el).fdatepicker()
+
+    console.log(this.params.options)
+    $.datetimepicker.setLocale(this.params.options.language);
+     $(this.el).datetimepicker({
+	     format :this.params.options.format,
+	     timepicker: this.params.options.pickTime,
+     })
      
   },
   update: function (value) {
-    console.log('change')
+  
   },
   unbind: function () {
    
