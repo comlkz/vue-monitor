@@ -1,7 +1,7 @@
 <template>
 
     <p style=" max-width:500px;white-space:nowrap;word-break:keep-all;overflow:hidden;text-overflow:ellipsis;">
-		 <a @click="showModal=true">{{item.msgText}}</a>
+		 <a @click="showModal=true" target="{{item.msgText}}">详情</a>
     </p>
 	<modal :show.sync="showModal">
         <h3 slot="header">消息内容</h3>

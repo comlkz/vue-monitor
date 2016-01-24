@@ -1,68 +1,86 @@
 <template>
-	<div class="row section">
-		<div class="row">
-			<div class="col  offset-s4 s8 "><h4 class="header">错误队列列表</h4></div>
-		</div>
-		<div class="row">
-		    <div class="col s12 m4 ">
-		         <input v-model="searchText" type="text" placeholder="查找"/> 
-		    </div>
-		    <div class="input-field col s3">
-				    <button class="btn" @click="search">检索</button>
-		    </div>
-		    <div class="input-field col s3">
-				    <button class="btn" @click="reset">重置</button>
-		    </div>
-		</div>
-	    <table class="table bordered striped responsive-table centered">
+	 <div class="am-cf am-padding">
+      <div class="am-fl am-cf"><strong class="am-text-primary am-text-lg">错误队列列表</strong></div>
+    </div>
+
+    <div class="am-g">
+		<div class="am-u-sm-12 am-u-md-3">
+	        <div class="am-input-group am-input-group-sm">
+	          <input type="text" class="am-form-field" v-model="searchText">
+	          <span class="am-input-group-btn">
+	            <button class="am-btn am-btn-default" type="button">搜索</button>
+	          </span>
+	        </div>
+      </div>
+
+	  <div class="am-u-sm-12 am-u-md-2">
+		   <div class="am-form-group">	
+			      <button class="am-btn am-btn-default" type="button" @click="showModal=true">重置</button>
+			      <modal :show.sync="showModal">
+				      
+				        <p slot="body">确定要重置这些记录吗</p>
+				        
+				            <span class="am-modal-btn" slot="footer" data-am-modal-cancel @click="showModal=false">取消</span>
+                            <span class="am-modal-btn" slot="footer" data-am-modal-confirm @click="reset">确定</span>
+				         
+                  </modal> 
+			 </div>
+	    </div>
+	</div>
+	
+	<div class="am-g">
+      <div class="am-u-sm-12">
+	    <table class="am-table am-table-striped am-table-hover table-main">
 	        <thead>
-	             <tr>
+	            <tr>
 					<th style="width:5%"> <input id="chkAll" type="checkbox" @click="selectAll(checked)"/><label for="chkAll"></label></th>
-					<th style="width: 10%">消息地址</th>
-					<th style="width:30%">消息内容</th>
-					<th style="width:5%">消息优先级</th>
-					<th style="width:5%">消息重传次数</th>
-					<th style="width:17%">创建时间</th>
-					<th style="width:17%">更改时间</th>
+					<th style="width:25%">消息地址</th>
+					
+					<th style="width:15%">优先级</th>
+					<th style="width:15%">重传次数</th>
+					<th style="width:15%">创建时间</th>
+					<th style="width:15%">更改时间</th>
+					<th style="width:5%">详情</th>
 	             </tr>
             </thead>
             <tbody>
 				<tr v-for="item in items">
-					<td style="width: 5%">
+					<td>
 					    <input type="checkbox" id="{{item.id}}" value={{item.id}}  v-model="checkedNames"/>
-					    <label for="{{item.id}}"> </label>
+					    <label for="{{item.id}}"></label>
 					</td>
-					<td style="width: 10%">
+					<td>
 						{{item.msgType}}
 					</td>
-					<td style="width:30%">
-					  <modal :item="item"></modal>
-					</td>
-					<td style="width:5%">
+					<td>
 						{{item.priority}}
 					</td>
-					<td style="width:5%">
+					<td>
 					  {{item.rewriteCount}}				
                    </td>
-					<td style="width:17%">
+					<td>
 						 {{item.createdDate | date  'YYYY-MM-DD HH:mm:ss'}}			
 					</td>
-					<td style="width:17%"> 
-					     {{item.lastRewriteDate | date 'YYYY-MM-DD HH:mm:ss'}}
+					<td> 
+					     {{item.lastRewriteDate | date  'YYYY-MM-DD HH:mm:ss'}}
+					</td>
+					<td>
+					   <table-modal :item="item"></table-modal>
 					</td>
 				</tr>
-	
             </tbody>	
             	     
 	    </table>
 	     
 	    <pagination :page-per-rows="rows" :total-page="totalPage" :cur-page.sync="curPage"></pagination>
-    </div>
+     </div>
+   </div>
 </template>
 <script>
 import * as errorMsgService from '../services/ErrorMsgService.js'
 import pagination from './Pagination.vue'
-import modal from './TableModel.vue'
+import tableModal from './TableModel.vue'
+import modal from './Modal.vue'
 export default {
   data () {
     return {
@@ -73,10 +91,12 @@ export default {
       rows:10,
       totalPage:10,
       searchText:null,
+      showModal:false
     }
   },
   components: {
     pagination,
+    tableModal,
     modal
   },
   
@@ -132,6 +152,11 @@ export default {
       this.$router.go({name:'mq',query:{searchText:this.searchText}})
     },
     reset () {
+	    this.showModal = false;
+	    if(this.checkedNames.length < 1){
+		    alert('至少要选择一项哟!')
+		    return
+	    }
         let params = {};
         let ids ="";
         this.checkedNames.forEach(key =>{

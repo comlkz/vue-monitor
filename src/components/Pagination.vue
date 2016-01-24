@@ -1,10 +1,10 @@
 <template>
-			  <ul class="pagination">
-			     <li :class="{'disabled': curPage == 1,'waves-effect':curPage != 1}"><a @click="changePage(1)">首页</a></li>
-			    <li :class="{'disabled': curPage == 1,'waves-effect':curPage != 1}"><a @click="prePage(curPage)">上一页</a></li>
-			    <li v-for="item in items"  :class="{'active':item == curPage,cyan:item == curPage,'waves-effect':item != curPage}"><a @click="changePage(item)">{{item}}</a></li>
-			   <li :class="{'disabled':curPage == totalPage,'waves-effect':curPage != totalPage}"><a @click="nextPage(curPage)">下一页</a></li>
-			    <li :class="{'disabled':curPage == totalPage,'waves-effect':curPage != totalPage}"><a @click="changePage(totalPage)">尾页</a></li>
+			  <ul class="am-pagination">
+			     <li :class="{'am-disabled': curPage == 1}"><a @click="changePage(1)">首页</a></li>
+			    <li :class="{'am-disabled': curPage == 1}"><a @click="prePage(curPage)">上一页</a></li>
+			    <li v-for="item in items"  :class="{'am-active':item == curPage}"><a @click="changePage(item)">{{item}}</a></li>
+			   <li :class="{'am-disabled':curPage == totalPage}"><a @click="nextPage(curPage)">下一页</a></li>
+			    <li :class="{'am-disabled':curPage == totalPage}"><a @click="changePage(totalPage)">尾页</a></li>
 			  </ul>
 	
 </template>

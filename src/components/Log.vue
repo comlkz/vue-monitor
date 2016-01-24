@@ -1,127 +1,123 @@
 <template>
-    {{params|json}}
-	<div class="row section">
-		<div class="row">
-			<div class="col  offset-s4 s8 "><h4 class="header">记录日志信息列表</h4></div>
-		</div>
-		<div class="row">
-		    <div class="input-append">
-		        <div class="input-field col s1 ">
-					<label>查找：</label>
-				</div>
-			    <div class="input-field col s3">
-			         <input v-model="searchText" type="text" placeholder="查找"/>
-			    </div>
-			    <div class="input-field col s1 ">
-					<label>关键字：</label>
-				</div>
-			     <div class="input-field col s3">
-			         <input v-model="keyWord" type="text" placeholder="关键字"/>
-			    </div>
-			    <div class="input-field col s1 ">
-					<label>项目名称：</label>
-				</div>
-			     <div class="input-field col s3">
-			       <select v-model="sydId" class="browser-default">
+
+    <div class="am-cf am-padding">
+      <div class="am-fl am-cf"><strong class="am-text-primary am-text-lg">记录日志信息列表</strong> / <small>Table</small></div>
+    </div>
+    
+	<div class="am-g">
+		<div class="am-u-sm-12 am-u-md-6">
+		   <div class="am-form-group">
+					
+			        <input v-model="searchText" type="text" placeholder="查找" class="am-form-field"/>
+			 </div>
+	    </div>
+	    <div class="am-u-sm-12 am-u-md-6">
+		    <div class="am-form-group">  
+					
+			         <input v-model="keyWord" type="text"  class="am-form-field" placeholder="关键字"/>
+			 </div>
+	    </div>
+		 
+	</div>
+	<div class="am-g">
+		
+		<div class="am-u-sm-12 am-u-md-6">
+			<div class="am-form-group">  
+			     <input class="am-form-field"  type="text" placeholder="开始时间" v-date-picker="startTime" :options="{format:'yyyy-mm-dd',language:'zh'}" ></input>
+		    </div>
+		 </div>
+		 <div class="am-u-sm-12 am-u-md-6">
+			<div class="am-form-group">  
+			    
+			     <input  class="am-form-field" type="text" placeholder="结束时间" v-date-picker="endTime" :options="{format:'yyyy-mm-dd',pickTime:true,language:'zh'}" ></input>
+		    </div>
+		 </div>
+    </div>
+    <div class="am-g">
+		<div class="am-u-sm-12 am-u-md-4">
+			<div class="am-form-group">  
+			    <label>年份：</label>
+                <select v-select="year">
+					<option v-for="year in years" v-bind:value="year">{{year}}</option>
+				</select>
+		    </div>
+		 </div>	  
+		<div class="am-u-sm-12 am-u-md-4">
+			<div class="am-form-group">  
+			    <label>月份：</label>
+                 <select v-select="month" >
+					<option v-for="month in 12" v-bind:value="month">{{month+1 }}</option>
+				 </select>
+		    </div>
+		 </div>	 
+		 <div class="am-u-sm-12 am-u-md-4">
+		    <div class="am-form-group">  
+					 <label>项目名称：</label>
+			       <select v-select v-model="sydId" >
 						<option v-for="project in projects" v-bind:value="project.id">{{project.label}}</option>
 		            </select>
-			    </div>
 			</div>
+		</div> 	    
+	</div>	
+	<div class="am-g">	
+		<div class="am-u-sm-12 am-u-md-3">
+			<div class="am-form-group">     
+				<button class="am-btn am-btn-default" @click="search">检索</button>
 			</div>
-			<div class="row">
-			<div class="input-append">
-			     <div class="input-field col s1 ">
-					<label>开始时间：</label>
-				</div>
-			     <div class="input-field col s2">
-			         <input v-model="startTime" type="text" placeholder="开始时间" v-date-picker :options="{format:'Y-m-d H:i:s',pickTime:true,language:'zh'}" ></input>
-			    </div>
-			    <div class="input-field col s1 ">
-					<label>结束时间：</label>
-				</div>
-			     <div class="input-field col s2">
-			         <input v-model="endTime" type="text" placeholder="结束时间" v-date-picker :options="{format:'Y-m-d H:i:s',pickTime:true,language:'zh'}"></input>
-			    </div>
-			     <div class="input-field col s1 ">
-					<label>年份：</label>
-				</div>
-			     <div class="input-field col s2">
-			    
-			         <select id="years" name="years" v-model="year" class="browser-default">
-							<option v-for="year in years" v-bind:value="year">{{year}}</option>
-					 </select>
-
-			    </div>
-			     <div class="input-field col s1 ">
-					<label>月份：</label>
-				</div>
-			     <div class="input-field col s2">
-			         <select id="years" name="years" v-model="month" class="browser-default">
-								<option v-for="month in 12" v-bind:value="month">{{month+1 }}</option>
-					 </select>
-			    </div>
-			 </div>
-			 </div>
-			    <div class="input-field col s3">
-					    <button class="btn" @click="search">检索</button>
-					</div>
-		    </div>
-		</div>
-	    <table class="table bordered striped responsive-table centered">
-	        <thead>
-	             <tr>
-					<th style="width:5%">序号</th>
-					<th style="width:20%">请求地址</th>
-					<th style="width:10%">关键字</th>
-					<th style="width:10%">操作时间</th>
-					
-					<th style="width:10%">执行时间</th>
-					<th style="width:5%">客户端IP</th>
-					<th style="width:10%">系统名称</th>
-					<th style="width:5%">操作类型</th>
-					<th style="width:20%">附加属性</th>
-					<th style="width:5%">详情</th>
+	    </div>
+	</div>
+	<div class="am-g">
+      <div class="am-u-sm-12">
+	   
+		    <table class="am-table am-table-striped am-table-hover table-main">
+		        <thead>
+		               <tr>
+					<th width="5%">序号</th>
+					<th width="25%">请求地址</th>
+					<th width="20%">关键字</th>
+					<th width="20%">操作时间</th>			
+					<th width="10">执行时间</th>
+					<th width="10%">系统名称</th>
+					<th width="5%">操作类型</th>
+					<th width="5%">详情</th>
 	             </tr>
-            </thead>
-            <tbody>
-				<tr v-for="item in items">
-					<td >
-					    {{$index}}
-					</td>
-					<td>
-					   <p style=" max-width:300px;white-space:nowrap;word-break:keep-all;overflow:hidden;text-overflow:ellipsis;">
-						{{item.url}}
-					   </p>
-					</td>
-					<td >
-						{{item.keyWord}}
-					</td>
-					<td >
-						{{item.operateTime  | date  'YYYY-MM-DD HH:mm:ss'}}
-					</td>
-					
-						<td> {{item.executeTime}}</td>
-						<td> {{item.clientIp}}</td>
-						<td>
-						{{item.systemName}}
-					</td>
-					<td>
-						 {{item.operateType}}				
-                    </td>
-						<td>
-                           <p style=" max-width:300px;white-space:nowrap;word-break:keep-all;overflow:hidden;text-overflow:ellipsis;">
-						{{item.attr}}
-						</p>
+	            </thead>
+	            <tbody>
+					<tr v-for="item in items">
+						<td >
+						    {{$index}}
 						</td>
-						<td> <a v-link="{name:'logDetail',params:{id:item.id},query:{tableName:tableName}}">详情</td>
-				</tr>
-	
-            </tbody>	
-            	     
-	    </table>
-	     
-	    <pagination :page-per-rows="rows" :total-page="totalPage" :cur-page.sync="curPage"></pagination>
+						<td>
+
+							{{item.url}}
+
+						</td>
+						<td >
+							{{item.keyWord}}
+						</td>
+						<td >
+							{{item.operateTime  | date  'YYYY-MM-DD HH:mm:ss'}}
+						</td>
+						
+							<td> {{item.executeTime}}</td>
+
+							<td>
+							{{item.systemName}}
+						</td>
+						<td>
+							 {{item.operateType}}				
+	                    </td>
+							
+							<td> <a v-link="{name:'logDetail',params:{id:item.id},query:{tableName:tableName}}">详情</td>
+					</tr>
+		
+	            </tbody>	
+	            	     
+		    </table> 
+	        <pagination :page-per-rows="rows" :total-page="totalPage" :cur-page.sync="curPage"></pagination>
+
     </div>
+   </div>
 </template>
 <script>
 import * as logDataService from '../services/LogDataService.js'
@@ -176,8 +172,9 @@ export default {
       if(to.query.rows != null){
         this.rows = to.query.rows;
       }
-      var maxTime = new Date(this.year,this.month+1,1);
-      var minTime = new Date(this.year,this.month,1);
+       logDataService.getSysProject().then((xhr,response) =>{
+        this.projects = response
+      });
     
       this.updateData();   
     }
@@ -197,10 +194,10 @@ export default {
       params.page = this.curPage;
       params.rows = this.rows;
       params.tableName = this.tableName;
-      if(this.startTime != null &&this.endTiime != null && new Date(this.startTime) >= minTime && new Date(this.endTime) <= maxTime ){
+
          params.startTime = this.startTime;
           params.endTime = this.endTime;
-      }
+      
       logDataService.getLogData(params).then((xhr,response) =>{
         if(response.code == 200){
 	        var page = response.page;
@@ -219,10 +216,11 @@ export default {
     month (){
         var monthStr = "";
 	    if(this.month <9){
-            monthStr += '0' +(this.month+1);
+            monthStr += '0' +(parseInt(this.month)+1);
 	    }else{
-            monthStr = (this.month+1).toString();
+            monthStr = (parseInt(this.month)+1).toString();
 	    }
+	    console.log(monthStr)
 	    this.tableName = this.year + monthStr;
 	    
 
@@ -230,10 +228,11 @@ export default {
     year () {
         var monthStr = "";
 	    if(this.month <9){
-            monthStr += '0' +(this.month+1);
+            monthStr += '0' +(parseInt(this.month)+1);
 	    }else{
-            monthStr = (this.month+1).toString();
+            monthStr = (parseInt(this.month)+1).toString();
 	    }
+	    console.log(monthStr)
 	    this.tableName = this.year + monthStr;
 
     },

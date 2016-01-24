@@ -1,21 +1,22 @@
 <template>
-   <div class="modal" style="z-index: 1003;" :style="{display:display,opacity:opacity,transform:transform,top:top}" transition="modal">
-        <div class="modal-content">
-          <slot name="header">
-           
-          </slot>
-          <slot name="body">
-            default body
-          </slot>
+   <div class="am-modal am-modal-dialog" tabindex="-1" :class="{'am-modal-active':show,'am-modal-out':show==false}" :style="{display:display}" transition="modal">
+        <div class="am-modal-dialog">
+	        <div class="am-modal-hd">
+                <slot name="header"></slot>
+            </div>
+            <div class="am-modal-bd">
+	          <slot name="body">
+	            default body
+	          </slot>
+             </div>
         </div>
-
-        <div class="modal-footer">
+        <div class="am-modal-footer">
           <slot name="footer">
-            <a  class="modal-action modal-close waves-effect waves-green btn-flat" @click="show = false">确定</a>
+            <span class="am-modal-btn" @click="show = false">确定</span>
           </slot>
         </div>
     </div>
-   
+   <div class="am-dimmer " :class="{'am-active':show}" data-am-dimmer="" :style="{display:display}"></div>
 </template>
 <script>
 export default {
@@ -39,15 +40,11 @@ export default {
        display () {
         return this.show == true ? 'block':'none';
        },
-       opacity (){
-         return this.show == true ? '1':'0';
-       },
+      
        top (){
-        return this.show == true ? '10%':'144px';
-       },
-       transform (){
-          return this.show == true ? 'scaleX(1)':'scaleX(0.7)';
+        return this.show == true ? '-65px':'144px';
        }
+       
     }
 }
 </script>
